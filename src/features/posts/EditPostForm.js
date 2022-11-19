@@ -1,20 +1,18 @@
 import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
-import { postUpdated } from './postsSlice'
+import { postsStore } from './stores'
 
 export const EditPostForm = ({ match }) => {
   const { postId } = match.params
 
-  const post = useSelector(state =>
-    state.posts.find(post => post.id === postId)
-  )
+  const editPost = postsStore((state) => state.editPost)
+  const post = postsStore((state) =>
+    state.posts.find(post => post.id === postId))
 
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.content)
 
-  const dispatch = useDispatch()
   const history = useHistory()
 
   const onTitleChanged = e => setTitle(e.target.value)
@@ -22,7 +20,7 @@ export const EditPostForm = ({ match }) => {
 
   const onSavePostClicked = () => {
     if (title && content) {
-      dispatch(postUpdated({ id: postId, title, content }))
+      editPost({ id: postId, title, content })
       history.push(`/posts/${postId}`)
     }
   }

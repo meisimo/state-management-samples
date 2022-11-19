@@ -1,26 +1,23 @@
 import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 
-
-import { postAdded } from './postsSlice'
+import { postsStore } from './stores'
+import { usersStore } from '../users/stores'
 
 export const AddPostForm = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
 
-  const dispatch = useDispatch()
-
-  const users = useSelector(state => state.users)
+  const addPost = postsStore((state) => state.addPost)
+  const users   = usersStore((state) => state.users)
 
   const onTitleChanged = e => setTitle(e.target.value)
   const onContentChanged = e => setContent(e.target.value)
   const onAuthorChanged = e => setUserId(e.target.value)
 
-
   const onSavePostClicked = () => {
     if (title && content) {
-      dispatch(postAdded(title, content, userId))
+      addPost({ title, content, user: userId })
       setTitle('')
       setContent('')
     }
