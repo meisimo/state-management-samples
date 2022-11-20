@@ -2,14 +2,31 @@ import create from 'zustand'
 import { nanoid } from '@reduxjs/toolkit'
 import { postsInitialState, createPost } from '../../data'
 
-export const postsStore = create((set) => ({
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export const postsStore = create((set, get) => ({
   posts: postsInitialState,
-  addPost: (post) => set((state) => ({
-    posts: [
-      ...state.posts,
-      createPost( nanoid(), post.title, post.content, post.user)
-    ]
-  })),
+  addPost: async (post) => {
+    const newPost = createPost( nanoid(), 'creating...', 'wait a few seconds...', post.user)
+
+    set((state) => ({ posts: [ ...state.posts, newPost ] }))
+    await delay(2000)
+
+    const createdPostIndex = get().posts.findIndex((p) => p.id === newPost.id)
+    console.log(createdPostIndex, get().posts)
+    const createdPost = get().posts[createdPostIndex]
+
+    createdPost.title = post.title
+    createdPost.content = post.content
+
+    set((state) => ({ posts: [
+      ...state.posts.slice(0, createdPostIndex),
+      createdPost,
+      ...state.posts.slice(createdPostIndex + 1)
+    ]}))
+  },
   editPost: (post) => set((state) => {
     const postIndex = state.posts.findIndex(p => p.id === post.id)
     const newPost = { ...state.posts[postIndex], ...post }
